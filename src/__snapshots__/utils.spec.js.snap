@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`enthusiasm 1`] = `
+Array [
+  Array [
+    -100,
+    "Abysmal!",
+  ],
+  Array [
+    -90,
+    "Abysmal!",
+  ],
+  Array [
+    -80,
+    "Terrible!",
+  ],
+  Array [
+    -70,
+    "Bad!",
+  ],
+  Array [
+    -60,
+    "Poor!",
+  ],
+  Array [
+    -50,
+    "Weak.",
+  ],
+  Array [
+    -40,
+    "Pedestrian.",
+  ],
+  Array [
+    -30,
+    "Pretty poor.",
+  ],
+  Array [
+    -20,
+    "You can do better.",
+  ],
+  Array [
+    -10,
+    "Not good.",
+  ],
+  Array [
+    0,
+    "Do better.",
+  ],
+  Array [
+    10,
+    "Meh.",
+  ],
+  Array [
+    20,
+    "Alright.",
+  ],
+  Array [
+    30,
+    "Keep trying.",
+  ],
+  Array [
+    40,
+    "Okay.",
+  ],
+  Array [
+    50,
+    "Decent.",
+  ],
+  Array [
+    60,
+    "Good.",
+  ],
+  Array [
+    70,
+    "Nice.",
+  ],
+  Array [
+    80,
+    "Great!",
+  ],
+  Array [
+    90,
+    "Awesome!",
+  ],
+  Array [
+    100,
+    "Fantastic!",
+  ],
+]
+`;
