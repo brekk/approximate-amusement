@@ -3,6 +3,14 @@
 exports[`enthusiasm 1`] = `
 Array [
   Array [
+    -120,
+    "Meh.",
+  ],
+  Array [
+    -110,
+    "Meh.",
+  ],
+  Array [
     -100,
     "Abysmal!",
   ],
@@ -84,6 +92,10 @@ Array [
   ],
   Array [
     100,
+    "Fantastic!",
+  ],
+  Array [
+    110,
     "Fantastic!",
   ],
 ]

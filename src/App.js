@@ -17,6 +17,10 @@ import {
 // import { Button } from 'rebass'
 import { Label, Input, Radio } from '@rebass/forms'
 import {
+  Instructions,
+  Score,
+  Title,
+  Header,
   Game,
   AttemptButton,
   TryAgain,
@@ -103,7 +107,7 @@ const isTopValue = curry((knownValues, x) =>
 
 const realScoresOnly = reject(propEq('fake', true))
 
-const App = ({ debug }) => {
+const App = ({ autofetch = true }) => {
   // convention for easier scanning: $-prefixed values come from `useState`
   const [$status, setStatus] = useState(STATUS_LOADING)
   const [$tryAgain, setTryAgain] = useState(true)
@@ -222,7 +226,11 @@ const App = ({ debug }) => {
       </SendScore>
     ) : null
   useEffect(() => {
-    if ($serverScores.length === 0 && $requestCount < 3) {
+    if (
+      autofetch &&
+      $serverScores.length === 0 &&
+      $requestCount < 3
+    ) {
       api
         .fetchAllScores()
         .catch(z => {
@@ -237,12 +245,21 @@ const App = ({ debug }) => {
         })
       setRequestCount($requestCount + 1)
     }
-  }, [$serverScores, $requestCount])
+  }, [autofetch, $serverScores, $requestCount])
   return (
     <Game>
-      <h1>Guessing Game</h1>
-      {$score !== UNSET_SCORE && <h2>Score: {$score}</h2>}
-      {$msg && <Message>{$msg}</Message>}
+      <Header>
+        <Title>Approximate Amusement</Title>
+        {$score === UNSET_SCORE ? (
+          <Instructions>
+            See if you can generate the highest number (-100 &ndash;
+            100) and make it onto the Leaderboard!
+          </Instructions>
+        ) : (
+          <Score>{$score}</Score>
+        )}
+        {$msg && <Message>{$msg}</Message>}
+      </Header>
       {$status !== STATUS_ERROR ? (
         <>
           {$tryAgain ? attemptButton : null}

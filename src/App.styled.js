@@ -1,6 +1,6 @@
 import { css, jsx } from '@emotion/react'
 import { curry } from 'ramda'
-import { Button as RawButton } from 'rebass'
+import { Box, Button as RawButton } from 'rebass'
 import {
   Radio as RawRadio,
   Input as RawInput,
@@ -55,12 +55,13 @@ export const Game = styled.section(`
   padding: 1rem;
   background-color: ${({ sentiment }) => 'sentiment' || '#ff0000'};
   table {
-    display: inline-table;
     table-layout: fixed;
     border-collapse: collapse;
-    width: width(100% - 4rem);
+    width: calc(100% - 4rem);
     margin: 2rem;
-    min-width: 30rem;
+    thead, tbody {
+      width: 100%;
+    }
     tbody tr {
       background-color: #fff;
       border: 1px dotted blue;
@@ -69,6 +70,8 @@ export const Game = styled.section(`
       background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,255,0,0.4) 10px, rgba(0,255,0,0.4) 20px);
     }
     td {
+      overflow-x: hidden;
+      text-overflow: ellipsis;
       padding: 0.5rem;
       text-align: center;
       &:first-of-type {
@@ -177,4 +180,39 @@ export const AttemptButton = styled.button(`
       transition: transform 0.1s ease-in;
     }
   }
+`)
+
+export const Title = styled.h1(
+  `
+  text-align: center;
+  margin: 0 auto;
+`
+)
+
+export const Header = styled.header(`
+  margin: 1rem;
+  text-align: center;
+`)
+
+export const Score = styled(Box)(`
+  border-radius: 10rem;
+  margin: 1rem auto;
+  max-width: 5rem;
+  padding: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  background-color: #3297b0;
+  justify-self: center;
+`)
+
+export const Instructions = styled(Box)(`
+  margin-top: 1rem;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  padding: 0 1rem;
 `)
