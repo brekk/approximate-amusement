@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react'
 import blem from 'blem'
 import { css } from '@emotion/css'
-import { prop, curry, range, map, pipe } from 'ramda'
+import {
+  sortBy,
+  slice,
+  last,
+  prop,
+  curry,
+  range,
+  map,
+  pipe
+} from 'ramda'
 // import { Button } from 'rebass'
 import { Label, Input, Radio } from '@rebass/forms'
 import {
@@ -24,31 +33,47 @@ import { enthusiasm, randoNum } from './utils'
 import { UNSET, LIMIT } from './constants'
 
 const bem = blem('GuessApp')
+const sortByScore = sortBy(pipe(prop('score'), z => z * -1))
 
-const Leaderboard = ({ scores }) => (
-  <table>
-    <thead>
-      <tr>
-        <th colspan="3">
-          <strong>Leaderboard</strong>
-        </th>
-      </tr>
-      <tr>
-        <th>Name</th>
-        <th>Clicks</th>
-        <th>Score</th>
-      </tr>
-    </thead>
-    <tbody>
-      {scores.slice(0, 10).map((x, i) => (
-        <tr key={x.name}>
-          <td>{x.name}</td>
-          <td>{x.clicks}</td>
-          <td>{x.score}</td>
+const Leaderboard = ({ scores, givenName }) =>
+  console.log('SCORES', scores) || (
+    <table>
+      <thead>
+        <tr>
+          <th colspan="3">
+            <strong>Leaderboard</strong>
+          </th>
         </tr>
-      ))}
-    </tbody>
-  </table>
+        <tr>
+          <th>Name</th>
+          <th>Clicks</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {pipe(
+          sortByScore,
+          slice(0, 10),
+          map(({ name, fake, clicks, score }) => (
+            <tr key={name} className={fake ? 'fake' : ''}>
+              <td>{fake ? givenName : name}</td>
+              <td>{clicks}</td>
+              <td>{score}</td>
+            </tr>
+          ))
+        )(scores)}
+      </tbody>
+    </table>
+  )
+
+const isTopValue = curry((knownValues, x) =>
+  pipe(
+    sortByScore,
+    slice(0, 10),
+    last,
+    prop('score'),
+    lowestTopScore => x > lowestTopScore
+  )(knownValues)
 )
 
 const App = ({ debug }) => {
@@ -60,7 +85,7 @@ const App = ({ debug }) => {
     'Try to generate the highest score possible, best score of 10 wins!'
   )
   const [$score, setScore] = useState(UNSET)
-  const [$name, setName] = useState('')
+  const [$name, setName] = useState('???')
   const [$count, setCount] = useState(0)
   const [$serverScores, setServerScores] = useState([])
   const [$requestCount, setRequestCount] = useState(0)
@@ -86,16 +111,27 @@ const App = ({ debug }) => {
     if ($count <= LIMIT) {
       const newCount = $count + 1
       const newVal = randoNum()
+      const isGoodScore =
+        $serverScores.length > 0 && isTopValue($serverScores, newVal)
+      if (isGoodScore) {
+        setServerScores(
+          $serverScores.concat({
+            name: $name || '???',
+            clicks: newCount,
+            score: newVal,
+            fake: true
+          })
+        )
+      }
+      const tellTheUserWhatToDo = isGoodScore
+        ? `You should submit this!`
+        : `Rating: ${enthusiasm(newVal)}`
       setCount(newCount)
       setScore(newVal)
       setMessage(
         $count < LIMIT
-          ? `Rating: "${enthusiasm(
-              newVal
-            )}" You've guessed ${newCount} / 10 times! Submit or try your luck again?`
-          : `Rating: "${enthusiasm(
-              newVal
-            )}" You've guessed 10 times! You can only submit this score!`
+          ? `${tellTheUserWhatToDo} You've guessed ${newCount} / 10 times! Submit or try your luck again?`
+          : `${tellTheUserWhatToDo} You've guessed 10 times! You can only submit this score!`
       )
       setSaved(
         $saved.concat([[newVal, enthusiasm(newVal), newCount]])
@@ -200,7 +236,7 @@ const App = ({ debug }) => {
           ) : null}
           {!$tryAgain ? submitName : null}
           {$serverScores.length ? (
-            <Leaderboard scores={$serverScores} />
+            <Leaderboard scores={$serverScores} givenName={$name} />
           ) : null}
         </>
       ) : null}

@@ -56,13 +56,17 @@ export const Game = styled.section(`
   background-color: ${({ sentiment }) => 'sentiment' || '#ff0000'};
   table {
     display: inline-table;
-    border: 1px solid black;
+    table-layout: fixed;
+    border-collapse: collapse;
     width: width(100% - 4rem);
     margin: 2rem;
     min-width: 30rem;
-    tr {
+    tbody tr {
       background-color: #fff;
-      border: 1px dashed blue;
+      border: 1px dotted blue;
+    }
+    tbody tr.fake {
+      background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,255,0,0.4) 10px, rgba(0,255,0,0.4) 20px);
     }
     td {
       padding: 0.5rem;
