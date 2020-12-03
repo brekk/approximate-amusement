@@ -1,6 +1,12 @@
-import { pipe, map, range } from 'ramda'
+import { objOf, pipe, map, range } from 'ramda'
 // import { trace } from 'xtrace'
-import { tackOn, enthusiasm, randoNum, within } from './utils'
+import {
+  isTopValue,
+  tackOn,
+  enthusiasm,
+  randoNum,
+  within
+} from './utils'
 
 test('within', () => {
   expect(within(0, 10, -1)).toBeFalsy()
@@ -23,4 +29,10 @@ test('enthusiasm', () => {
     map(tackOn(enthusiasm))
   )(12)
   expect(output).toMatchSnapshot()
+})
+
+test('isTopValue', () => {
+  const enoughValues = pipe(range(0), map(pipe(objOf('score'))))(12)
+  expect(isTopValue(enoughValues, 100)).toBeTruthy()
+  expect(isTopValue([], -1)).toBeTruthy()
 })

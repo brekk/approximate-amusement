@@ -1,8 +1,16 @@
 import {
+  propEq,
+  ifElse,
+  slice,
+  last,
+  reject,
   memoizeWith,
   identity as I,
   curry,
   cond,
+  sortBy,
+  pipe,
+  prop,
   T as otherwise
 } from 'ramda'
 import { SENTIMENTS } from './constants'
@@ -53,3 +61,20 @@ export const randoNum = () => {
 }
 
 export const tackOn = curry((fn, z) => [z, fn(z)])
+export const sortByScore = sortBy(pipe(prop('score'), z => z * -1))
+
+export const isTopValue = curry((knownValues, x) =>
+  ifElse(
+    z => z.length < 10,
+    () => true,
+    pipe(
+      sortByScore,
+      slice(0, 10),
+      last,
+      prop('score'),
+      lowestTopScore => x > lowestTopScore
+    )
+  )(knownValues)
+)
+
+export const realScoresOnly = reject(propEq('fake', true))

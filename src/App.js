@@ -1,21 +1,7 @@
 import { useState, useEffect } from 'react'
 import blem from 'blem'
-import { css } from '@emotion/css'
-import {
-  ifElse,
-  reject,
-  propEq,
-  sortBy,
-  slice,
-  last,
-  prop,
-  curry,
-  range,
-  map,
-  pipe
-} from 'ramda'
-// import { Button } from 'rebass'
-import { Label, Input, Radio } from '@rebass/forms'
+import { Radio } from '@rebass/forms'
+import { Leaderboard } from './Leaderboard'
 import {
   Instructions,
   Score,
@@ -33,10 +19,14 @@ import {
   UserLabel,
   UserName
 } from './App.styled'
-import logo from './logo.svg'
 
 import api from './api'
-import { enthusiasm, randoNum } from './utils'
+import {
+  enthusiasm,
+  randoNum,
+  realScoresOnly,
+  isTopValue
+} from './utils'
 import {
   STATUS_LOADING,
   STATUS_ERROR,
@@ -58,54 +48,6 @@ const {
 } = STRINGS
 
 const bem = blem('GuessApp')
-const sortByScore = sortBy(pipe(prop('score'), z => z * -1))
-
-const Leaderboard = ({ scores, givenName }) =>
-  console.log('SCORES', scores) || (
-    <table>
-      <thead>
-        <tr>
-          <th colspan="3">
-            <strong>Leaderboard</strong>
-          </th>
-        </tr>
-        <tr>
-          <th>Name</th>
-          <th>Clicks</th>
-          <th>Score</th>
-        </tr>
-      </thead>
-      <tbody>
-        {pipe(
-          sortByScore,
-          slice(0, 10),
-          map(({ name, fake, clicks, score }) => (
-            <tr key={name} className={fake ? 'fake' : ''}>
-              <td>{fake ? givenName : name}</td>
-              <td>{clicks}</td>
-              <td>{score}</td>
-            </tr>
-          ))
-        )(scores)}
-      </tbody>
-    </table>
-  )
-
-const isTopValue = curry((knownValues, x) =>
-  ifElse(
-    z => z.length < 10,
-    () => true,
-    pipe(
-      sortByScore,
-      slice(0, 10),
-      last,
-      prop('score'),
-      lowestTopScore => x > lowestTopScore
-    )
-  )(knownValues)
-)
-
-const realScoresOnly = reject(propEq('fake', true))
 
 const App = ({ autofetch = true }) => {
   // convention for easier scanning: $-prefixed values come from `useState`
