@@ -79,7 +79,7 @@ const isTopValue = curry((knownValues, x) =>
 const App = ({ debug }) => {
   // convention for easier scanning: $-prefixed values come from `useState`
   const [$status, setStatus] = useState('loading')
-  const [$tryAgain, toggle] = useState(true)
+  const [$tryAgain, setTryAgain] = useState(true)
   const [$saved, setSaved] = useState([])
   const [$msg, setMessage] = useState(
     'Try to generate the highest score possible, best score of 10 wins!'
@@ -102,6 +102,24 @@ const App = ({ debug }) => {
       .catch(err => setMessage(err.toString()))
       .then(x => {
         setMessage('Saved!')
+        api
+          .fetchAllScores()
+          .catch(z => {
+            console.error('error on request', z)
+            setMessage(
+              'Unable to access server, is the backend running?'
+            )
+            setStatus('error')
+          })
+          .then(data => {
+            if (data) {
+              setServerScores(data)
+              setName('???')
+              setTryAgain(true)
+              setScore(UNSET)
+              setCount(0)
+            }
+          })
       })
   }
 
@@ -211,7 +229,7 @@ const App = ({ debug }) => {
                     name="try-again-or-submit"
                     value={$tryAgain}
                     checked={$tryAgain}
-                    onClick={e => toggle(!$tryAgain)}
+                    onClick={e => setTryAgain(!$tryAgain)}
                   />
                 </TryAgain>
               </Option>
@@ -226,7 +244,7 @@ const App = ({ debug }) => {
                       name="try-again-or-submit"
                       value={!$tryAgain}
                       checked={!$tryAgain}
-                      onClick={e => toggle(!$tryAgain)}
+                      onClick={e => setTryAgain(!$tryAgain)}
                     />
                     Submit
                   </SubmitScore>
