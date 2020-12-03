@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import blem from 'blem'
 import { css } from '@emotion/css'
 import {
+  ifElse,
+  reject,
+  propEq,
   sortBy,
   slice,
   last,
@@ -30,7 +33,25 @@ import logo from './logo.svg'
 
 import api from './api'
 import { enthusiasm, randoNum } from './utils'
-import { UNSET, LIMIT } from './constants'
+import {
+  STATUS_LOADING,
+  STATUS_ERROR,
+  STRINGS,
+  UNSET_SCORE,
+  ATTEMPT_LIMIT
+} from './constants'
+
+const {
+  NAME_DEFAULT,
+  OPTION_AGAIN,
+  OPTION_CTA,
+  ERROR_SYSTEM_BACKEND,
+  MESSAGE_DEFAULT,
+  MESSAGE_SAVED,
+  ERROR_USER_SCORE,
+  ERROR_USER_NAME,
+  ENTREAT_USER_TO_SUBMIT
+} = STRINGS
 
 const bem = blem('GuessApp')
 const sortByScore = sortBy(pipe(prop('score'), z => z * -1))
@@ -67,25 +88,29 @@ const Leaderboard = ({ scores, givenName }) =>
   )
 
 const isTopValue = curry((knownValues, x) =>
-  pipe(
-    sortByScore,
-    slice(0, 10),
-    last,
-    prop('score'),
-    lowestTopScore => x > lowestTopScore
+  ifElse(
+    z => z.length < 10,
+    () => true,
+    pipe(
+      sortByScore,
+      slice(0, 10),
+      last,
+      prop('score'),
+      lowestTopScore => x > lowestTopScore
+    )
   )(knownValues)
 )
 
+const realScoresOnly = reject(propEq('fake', true))
+
 const App = ({ debug }) => {
   // convention for easier scanning: $-prefixed values come from `useState`
-  const [$status, setStatus] = useState('loading')
+  const [$status, setStatus] = useState(STATUS_LOADING)
   const [$tryAgain, setTryAgain] = useState(true)
   const [$saved, setSaved] = useState([])
-  const [$msg, setMessage] = useState(
-    'Try to generate the highest score possible, best score of 10 wins!'
-  )
-  const [$score, setScore] = useState(UNSET)
-  const [$name, setName] = useState('???')
+  const [$msg, setMessage] = useState(MESSAGE_DEFAULT)
+  const [$score, setScore] = useState(UNSET_SCORE)
+  const [$name, setName] = useState(NAME_DEFAULT)
   const [$count, setCount] = useState(0)
   const [$serverScores, setServerScores] = useState([])
   const [$requestCount, setRequestCount] = useState(0)
@@ -93,31 +118,33 @@ const App = ({ debug }) => {
   const sendScore = e => {
     e.preventDefault()
     if (!$score || !$name) {
-      if (!$score) setMessage('You must try your luck first!')
-      if (!$name) setMessage('You must write your name.')
+      if (!$score) setMessage(ERROR_USER_SCORE)
+      if (!$name) setMessage(ERROR_USER_NAME)
       return
     }
     api
       .addAScore({ name: $name, score: $score, clicks: $count })
       .catch(err => setMessage(err.toString()))
       .then(x => {
-        setMessage('Saved!')
+        setMessage(MESSAGE_SAVED)
         api
           .fetchAllScores()
           .catch(z => {
             console.error('error on request', z)
-            setMessage(
-              'Unable to access server, is the backend running?'
-            )
-            setStatus('error')
+            setMessage(ERROR_SYSTEM_BACKEND)
+            setStatus(STATUS_ERROR)
           })
           .then(data => {
             if (data) {
               setServerScores(data)
-              setName('???')
+              setName(NAME_DEFAULT)
               setTryAgain(true)
-              setScore(UNSET)
+              setScore(UNSET_SCORE)
               setCount(0)
+              setMessage(MESSAGE_DEFAULT)
+              setStatus(STATUS_LOADING)
+              setSaved([])
+              setTryAgain(true)
             }
           })
       })
@@ -126,37 +153,44 @@ const App = ({ debug }) => {
   // attemptWithContext :: Event -> Void
   const attempt = e => {
     e.preventDefault()
-    if ($count <= LIMIT) {
+    if ($count <= ATTEMPT_LIMIT) {
       const newCount = $count + 1
       const newVal = randoNum()
+
+      const canTryAgain = $count < ATTEMPT_LIMIT
       const isGoodScore =
-        $serverScores.length > 0 && isTopValue($serverScores, newVal)
+        $serverScores.length > 0
+          ? isTopValue($serverScores, newVal)
+          : true
       if (isGoodScore) {
         setServerScores(
-          $serverScores.concat({
-            name: $name || '???',
+          realScoresOnly($serverScores).concat({
+            name: $name || NAME_DEFAULT,
             clicks: newCount,
             score: newVal,
             fake: true
           })
         )
+      } else {
+        setServerScores(realScoresOnly($serverScores))
       }
       const tellTheUserWhatToDo = isGoodScore
-        ? `You should submit this!`
+        ? ENTREAT_USER_TO_SUBMIT
         : `Rating: ${enthusiasm(newVal)}`
       setCount(newCount)
       setScore(newVal)
       setMessage(
-        $count < LIMIT
+        canTryAgain
           ? `${tellTheUserWhatToDo} You've guessed ${newCount} / 10 times! Submit or try your luck again?`
           : `${tellTheUserWhatToDo} You've guessed 10 times! You can only submit this score!`
       )
       setSaved(
         $saved.concat([[newVal, enthusiasm(newVal), newCount]])
       )
+      if (!canTryAgain) setTryAgain(false)
     }
   }
-  const allowAnotherAttempt = $count <= LIMIT
+  const allowAnotherAttempt = $count <= ATTEMPT_LIMIT
   const attemptButton = allowAnotherAttempt ? (
     <AttemptButton
       className={bem('button', 'attempt')}
@@ -193,14 +227,10 @@ const App = ({ debug }) => {
         .fetchAllScores()
         .catch(z => {
           console.error('error on request', z)
-          // setMessage(z.toString())
-          setMessage(
-            'Unable to access server, is the backend running?'
-          )
-          setStatus('error')
+          setMessage(ERROR_SYSTEM_BACKEND)
+          setStatus(STATUS_ERROR)
         })
         .then(data => {
-          console.log('RAW DATA', data)
           if (data) {
             setServerScores(data)
           }
@@ -211,9 +241,9 @@ const App = ({ debug }) => {
   return (
     <Game>
       <h1>Guessing Game</h1>
-      {$score !== UNSET && <h2>Score: {$score}</h2>}
+      {$score !== UNSET_SCORE && <h2>Score: {$score}</h2>}
       {$msg && <Message>{$msg}</Message>}
-      {$status !== 'error' ? (
+      {$status !== STATUS_ERROR ? (
         <>
           {$tryAgain ? attemptButton : null}
           {$count ? (
@@ -223,7 +253,7 @@ const App = ({ debug }) => {
                   htmlFor="try-again-or-submit"
                   active={$tryAgain}
                 >
-                  {$count ? 'Try again!' : 'Try your luck!'}
+                  {$count ? OPTION_AGAIN : OPTION_CTA}
                   <Radio
                     id="try-again-or-submit"
                     name="try-again-or-submit"

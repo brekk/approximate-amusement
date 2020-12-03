@@ -42,5 +42,22 @@ export const SENTIMENTAL_COLORS = [
   '#44ff44',
   '#00ff00'
 ]
-export const LIMIT = 9
-export const UNSET = -1000
+export const ATTEMPT_LIMIT = 9
+export const UNSET_SCORE = -1000
+
+export const STRINGS = Object.freeze({
+  NAME_DEFAULT: '???',
+  MESSAGE_DEFAULT:
+    'Try to generate the highest score possible, best score of 10 wins!',
+  MESSAGE_SAVED: 'Saved!',
+  OPTION_AGAIN: 'Try again!',
+  OPTION_CTA: 'Try your luck!',
+  ERROR_USER_SCORE: 'You must try your luck first!',
+  ERROR_USER_NAME: 'You must write your name.',
+  ERROR_SYSTEM_BACKEND:
+    'Unable to access server, is the backend running?',
+  ENTREAT_USER_TO_SUBMIT: `Wow! You should submit this.`
+})
+
+export const STATUS_ERROR = `Something weird is happening. Maybe \`node backend.js\`?`
+export const STATUS_LOADING = `default loading state`
