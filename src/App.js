@@ -120,6 +120,7 @@ const App = ({ debug }) => {
           setStatus('error')
         })
         .then(data => {
+          console.log('RAW DATA', data)
           if (data) {
             setServerScores(data)
           }

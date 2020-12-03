@@ -1,7 +1,7 @@
 import {
   defaultTo,
-  objOf,
-  values,
+  sortBy,
+  prop,
   pathOr,
   map,
   pipe,
@@ -35,7 +35,12 @@ export default {
       defaultTo({}),
       api,
       snag(hardThrow),
-      then(pipe(pathOr([], ['data', 'data'])))
+      then(
+        pipe(
+          pathOr([], ['data', 'data']),
+          sortBy(pipe(prop('score'), z => z * -1))
+        )
+      )
     )(),
   addAScore: data =>
     pipe(
