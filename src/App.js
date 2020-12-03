@@ -25,6 +25,32 @@ import { UNSET, LIMIT } from './constants'
 
 const bem = blem('GuessApp')
 
+const Leaderboard = ({ scores }) => (
+  <table>
+    <thead>
+      <tr>
+        <th colspan="3">
+          <strong>Leaderboard</strong>
+        </th>
+      </tr>
+      <tr>
+        <th>Name</th>
+        <th>Clicks</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      {scores.slice(0, 10).map((x, i) => (
+        <tr key={x.name}>
+          <td>{x.name}</td>
+          <td>{x.clicks}</td>
+          <td>{x.score}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)
+
 const App = ({ debug }) => {
   // convention for easier scanning: $-prefixed values come from `useState`
   const [$status, setStatus] = useState('loading')
@@ -173,6 +199,9 @@ const App = ({ debug }) => {
             </Options>
           ) : null}
           {!$tryAgain ? submitName : null}
+          {$serverScores.length ? (
+            <Leaderboard scores={$serverScores} />
+          ) : null}
         </>
       ) : null}
     </Game>

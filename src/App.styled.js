@@ -54,6 +54,24 @@ export const Game = styled.section(`
   flex-direction: column;
   padding: 1rem;
   background-color: ${({ sentiment }) => 'sentiment' || '#ff0000'};
+  table {
+    display: inline-table;
+    border: 1px solid black;
+    width: width(100% - 4rem);
+    margin: 2rem;
+    min-width: 30rem;
+    tr {
+      background-color: #fff;
+      border: 1px dashed blue;
+    }
+    td {
+      padding: 0.5rem;
+      text-align: center;
+      &:first-of-type {
+        text-align: left;
+      }
+    }
+  }
 `)
 
 export const Message = styled.p(`

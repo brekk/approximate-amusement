@@ -72,7 +72,7 @@ const makeScores = () =>
     T.writeFile(process.cwd() + '/dummy.json', R.__, 'utf8'),
     F.fork(console.error)(() =>
       console.log(
-        'copy "dummy.json" to "data.json" to overwrite things'
+        "Generated dummy.json"
       )
     )
   )()
