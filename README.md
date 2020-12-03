@@ -48,4 +48,20 @@ npm run start
 
 If you run the frontend without the backend running, it will yell at (maybe, gently chide) you to run the backend.
 
+# choices
+
+This project uses a number of different packages:
+
+- `emotion` for styling with CSS-in-JS using the `styled-components` approach
+- `rebass` for building blocks
+- `blem` for BEM notation (my library)
+- `half-baked` for a backend-server solution (my library)
+- `ramda` for function utilities - if the syntax used is unfamiliar or if currying is new to you, I highly recommend [this book](https://mostly-adequate.gitbooks.io/mostly-adequate-guide/content/) or [this post by this big nerd I know](https://codepen.io/brekk/post/functional-workaholism).
+
+# shortcomings
+
+With more time I would have spent it on:
+- improving the appearance of things
+- improving the test quality for React components
+- making more things unequivocal - some things are moved up and out into constants, but there's a lot of free strings littered about the place
 
