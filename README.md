@@ -18,7 +18,7 @@ If you do not want to run the `nps` commands, these examples are followed with h
 
 # running the backend
 
-This project uses [half-baked](https://www.npmjs.com/package/half-baked) to generate a simple and easy to manage backend which uses static files.
+This project uses [half-baked](https://brekk.is/writing/package/half-baked?palette=worm&flipped=false&playing=false) to generate a simple and easy to manage backend which uses static files. This is my own library, designed for running a low-configuration `express` server locally.
 
 ```
 nps backend
@@ -47,6 +47,12 @@ npm run start
 ```
 
 If you run the frontend without the backend running, it will yell at (maybe, gently chide) you to run the backend.
+
+# tests
+
+There are some. 😅
+
+There is 100% test coverage on all non-React files. Run `nps test` to run them locally.
 
 # choices
 
